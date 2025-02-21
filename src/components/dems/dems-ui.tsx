@@ -56,7 +56,7 @@ export function CounterCreate() {
 }
 
 export function CounterList() {
-  const { accounts, getProgramAccount } = useDemsProgram()
+  const { accounts, getProgramAccount, joinEstate } = useDemsProgram()
 
   if (getProgramAccount.isLoading) {
     return <span className="loading loading-spinner loading-lg"></span>
@@ -80,6 +80,8 @@ export function CounterList() {
 				<p>vault balance: {account.account.vaultBalance.toNumber()}</p>
 				<p>Number of residents: {account.account.noOfResidents}</p>
 				<p>leader: {account.account.leader.toBase58()}</p>
+
+				<button className='border border-red-200 p-5' onClick={()=> joinEstate.mutateAsync(account.publicKey)}>join</button>
 				
 			</div>
             // <CounterCard key={account.publicKey.toString()} account={account.publicKey} />

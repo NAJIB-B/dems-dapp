@@ -11,12 +11,6 @@ import { SystemProgram } from '@solana/web3.js'
 
 import { Connection, clusterApiUrl } from "@solana/web3.js";
 
-
-
-
-
-import { api } from '@/trpc/react'
-import { validateHeaderValue } from 'http'
 import { useAnchorProvider } from '@/app/solanaProvider'
 
 export function ExplorerLink({ path, label, className }: { path: string; label: string; className?: string }) {
@@ -40,7 +34,7 @@ export function useTransactionToast() {
 		<div className={'text-center'}>
 		  <div className="text-lg">Transaction sent</div>
 		  <ExplorerLink path={`tx/${signature}`} label={'View Transaction'} className="btn btn-xs btn-primary" />
-		</div>,
+		</div>
 	  )
 	}
   }
@@ -112,12 +106,45 @@ export function useDemsProgram() {
     onError: () => toast.error('Failed to initialize account'),
   })
 
+  const joinEstate = useMutation({
+    mutationKey: ['estates', 'initialize', { cluster }],
+    mutationFn: (estate: PublicKey) => {
+		
+
+		
+		  const residentPda= PublicKey.findProgramAddressSync(
+			[
+			  Buffer.from("resident"),
+			  estate.toBuffer(),
+			  provider.publicKey.toBuffer(),
+			],
+			program.programId
+		  )[0];
+		
+		return program.methods.addResident().accountsStrict({
+			user:provider.publicKey,
+			estate: estate,
+			resident: residentPda,
+			systemProgram: SystemProgram.programId
+			
+		}).rpc()
+	
+	},
+    onSuccess: async (signature) => {
+      transactionToast(signature)
+	//   await initializeCounter.mutate({publicKey: keypair.publicKey.toBase58()})
+      return accounts.refetch()
+    },
+    onError: () => toast.error('Failed to initialize account'),
+  })
+
   return {
     program,
     programId,
     accounts,
     getProgramAccount,
     initialize,
+	joinEstate
   }
 }
 

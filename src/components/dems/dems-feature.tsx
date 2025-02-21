@@ -36,6 +36,7 @@ export function ExplorerLink({ path, label, className }: { path: string; label: 
 
 export default function CounterFeature() {
 	const { data: account } = useAccount();
+	const {publicKey} = useWallet()
 
 
 
@@ -43,7 +44,7 @@ export default function CounterFeature() {
 
 
 
-  return account?.isConnected ? (
+  return publicKey ? (
     <div>
 
         <p className="mb-6">

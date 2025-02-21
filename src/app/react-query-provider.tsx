@@ -3,7 +3,7 @@
 import React, { ReactNode, useState } from "react";
 import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-
+import { Toaster } from "react-hot-toast";
 import { SolanaProvider } from "./solanaProvider";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { clusterApiUrl } from "@solana/web3.js";
@@ -17,6 +17,7 @@ export function ReactQueryProvider({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={client}>
       <ReactQueryStreamedHydration>
+		<Toaster></Toaster>
         <SolanaProvider>{children}</SolanaProvider>
       </ReactQueryStreamedHydration>
     </QueryClientProvider>
