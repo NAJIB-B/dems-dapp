@@ -14,10 +14,32 @@ datasource db {
 }
 
 
-model Counter {
-  id    String    @id @default(cuid())
-  count Int      @default(0)
-  publicKey String @unique
+model Estate {
+  id       String   @id @unique // Estate PDA (Public Key)
+  name     String
+  leader   String   // Public Key of the Estate Leader
+  vaultBalance Int	@default(0)
+  members  Member[] // One-to-Many relationship (Estate has many Members)
+  polls    Poll[]   // One-to-Many relationship (Estate has many Polls)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Member {
+  id       String @id @unique 
+  estateId String 
+  estate   Estate @relation(fields: [estateId], references: [id], onDelete: Cascade)
+  joinedAt DateTime @default(now())
+}
+
+model Poll {
+  id        String  @id @unique 
+  estateId  String  
+  pollCreator String
+  estate    Estate  @relation(fields: [estateId], references: [id], onDelete: Cascade)
+  question  String
+  amount Int
+  agreeVotes Int    @default(0)
+  disagreeVotes Int @default(0)
+  createdAt DateTime @default(now())
 }

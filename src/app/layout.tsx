@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ReactQueryProvider } from "./react-query-provider";
 import {TRPCReactProvider}from "../trpc/react"
+import ParaModal from "@/components/para/paraModal";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,6 +26,21 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+	const links = [
+		{
+			link: "estates",
+			name: "Estates"
+		},
+		{
+			link: "my-estate",
+			name: "My Estate"
+		},
+		{
+			link: "about-us",
+			name: "About Us"
+		}
+];
 	
   return (
     <html lang="en">
@@ -32,7 +49,29 @@ export default function RootLayout({
       >
 		 <ReactQueryProvider>
 			<TRPCReactProvider>
-		   {children}
+			<div>
+      <div className="flex bg-base-300 dark:text-neutral-content flex-col md:flex-row space-y-2 md:space-y-0 py-4 bg-blue-500 px-8">
+        <div className="flex-1">
+          <Link className="btn btn-ghost normal-case text-xl" href="/">
+            <h1 className="text-4xl font-extrabold text-gray-800 tracking-wide uppercase text-center">
+              🏠 Estate<span className="text-white">DAO</span>
+            </h1>
+          </Link>
+          <ul className="flex flex-row px-1 space-x-2 gap-8">
+            {links.map((link, key) => (
+              <li key={key}>
+                <Link href={link.link} className="hover:text-blue-300 text-white font-mono font-semibold">{link.name}</Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="flex-none space-x-2">
+          <ParaModal></ParaModal>
+        </div>
+      </div>
+	  {children}
+    </div>
+		
 		   </TRPCReactProvider>
 		   </ReactQueryProvider>
    

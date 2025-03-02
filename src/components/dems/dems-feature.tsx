@@ -3,12 +3,12 @@
 import { useWallet } from '@solana/wallet-adapter-react'
 import ParaModal from '../para/paraModal'
 import para from '@/client/para'
-import { useAccount } from '@getpara/react-sdk'
+
 
 import { useDemsProgram } from './dems-data-access'
-import { CounterCreate, CounterList } from './dems-ui'
+import { EstateCreate, EstateList } from './dems-ui'
 import { clusterApiUrl } from '@solana/web3.js';
-import { useEffect, useState } from 'react'
+
 
 export function ellipsify(str = '', len = 4) {
 	if (str.length > 30) {
@@ -34,8 +34,7 @@ export function ExplorerLink({ path, label, className }: { path: string; label: 
 
   
 
-export default function CounterFeature() {
-	const { data: account } = useAccount();
+export default function Estates() {
 	const {publicKey} = useWallet()
 
 
@@ -50,9 +49,9 @@ export default function CounterFeature() {
         <p className="mb-6">
           <ExplorerLink path={`account/${programId}`} label={ellipsify(programId.toString())} />
         </p>
-        <CounterCreate />
+        <EstateCreate />
 
-      <CounterList />
+      <EstateList />
     </div>
   ) : (
     <div className="max-w-4xl mx-auto">

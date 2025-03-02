@@ -3,7 +3,7 @@
 import { clusterApiUrl, Keypair, PublicKey } from '@solana/web3.js'
 import { SetStateAction, useMemo, useState } from 'react'
 
-import { useDemsProgram} from './dems-data-access'
+import { useDemsProgram, useDemsProgramAccount} from './dems-data-access'
 
 export function ellipsify(str = '', len = 4) {
 	if (str.length > 30) {
@@ -27,7 +27,7 @@ export function ExplorerLink({ path, label, className }: { path: string; label: 
 	)
   }
 
-export function CounterCreate() {
+export function EstateCreate() {
 	const [name, setName] = useState("");
   const { initialize } = useDemsProgram()
 
@@ -41,21 +41,32 @@ export function CounterCreate() {
 
   return (
 	<>
-		<label>name</label>
-		<input type="text" value={name} onChange={handleChange} className='border border-red-200'/>
-    <button
-      className="btn btn-xs lg:btn-md btn-primary"
-      onClick={() => initialize.mutateAsync(name)}
-      disabled={initialize.isPending}
-    >
-      Create {initialize.isPending && '...'}
-    </button>
+	<div className="max-w-sm mx-auto bg-white rounded-2xl shadow-lg p-6 border border-gray-200 mb-8">
+      <h2 className="text-xl font-bold text-gray-800 mb-4">🏠 Create Estate</h2>
+
+      <input
+        type="text"
+        placeholder="Estate Name"
+        value={name}
+        onChange={handleChange}
+        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-700"
+      />
+
+      <button
+        onClick={() => initialize.mutateAsync(name)}
+		disabled={initialize.isPending}
+        className="w-full mt-4 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300"
+      >
+        Create Estate {initialize.isPending && '...'}
+      </button>
+    </div>
+		
 	</>
 
   )
 }
 
-export function CounterList() {
+export function EstateList() {
   const { accounts, getProgramAccount, joinEstate } = useDemsProgram()
 
   if (getProgramAccount.isLoading) {
@@ -73,17 +84,9 @@ export function CounterList() {
       {accounts.isLoading ? (
         <span className="loading loading-spinner loading-lg"></span>
       ) : accounts.data?.length ? (
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-3 gap-4">
           {accounts.data?.map((account, key) => (
-			<div className='border border-red-100 rounded p-4' key={key}>
-				<p>name: {account.account.name}</p>
-				<p>vault balance: {account.account.vaultBalance.toNumber()}</p>
-				<p>Number of residents: {account.account.noOfResidents}</p>
-				<p>leader: {account.account.leader.toBase58()}</p>
-
-				<button className='border border-red-200 p-5' onClick={()=> joinEstate.mutateAsync(account.publicKey)}>join</button>
-				
-			</div>
+			<EstateCard key={key} account={account.publicKey}></EstateCard>
             // <CounterCard key={account.publicKey.toString()} account={account.publicKey} />
           ))}
         </div>
@@ -95,6 +98,35 @@ export function CounterList() {
       )}
     </div>
   )
+}
+
+function EstateCard({account}: {account: PublicKey}) {
+	const {accountQuery} = useDemsProgramAccount({account})
+	const {joinEstate} = useDemsProgram()
+
+	const data = useMemo(() => accountQuery.data, [accountQuery.data])
+	return (
+		<div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+		  <h2 className="text-xl font-bold text-gray-800 mb-2">name: {data?.name}</h2>
+	
+		  <div className="text-gray-600">
+			<p className="mb-1"><strong>Vault Balance:</strong> {data?.vaultBalance.toNumber()}</p>
+			<p className="mb-1"><strong>Number of Residents:</strong> {data?.noOfResidents}</p>
+			<p className="mb-3">
+			  <strong>Leader:</strong> 
+			  <span className="block text-sm text-gray-500 break-all">
+				{data?.leader.toBase58()}
+			  </span>  
+			</p>
+		  </div>
+	
+		  <button 
+		  onClick={()=> joinEstate.mutateAsync(account)}
+		  className="w-full mt-4 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300">
+			join
+		  </button>
+		</div>
+	  );
 }
 
 // function CounterCard({ account }: { account: PublicKey }) {

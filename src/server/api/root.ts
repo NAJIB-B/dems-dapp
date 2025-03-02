@@ -1,4 +1,5 @@
-import { counterRouter } from "@/server/api/routers/counter/index";
+
+import { demsRouter } from "./routers/dems";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 
@@ -8,7 +9,7 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  counter: counterRouter,
+  dems: demsRouter,
 });
 
 // export type definition of API

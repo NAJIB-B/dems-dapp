@@ -1,38 +1,33 @@
-
 import Link from "next/link";
 import ParaModal from "@/components/para/paraModal";
 import CounterFeature from "@/components/dems/dems-feature";
 
 
-const links = ["Estates", "Your Estate", "About us"]
 
 export default function Home() {
   return (
-  <div>
-	<div className="flex bg-base-300 dark:text-neutral-content flex-col md:flex-row space-y-2 md:space-y-0 py-4 bg-slate-500">
-        <div className="flex-1">
-          <Link className="btn btn-ghost normal-case text-xl" href="/">
-            Counter
-          </Link>
-          <ul className="flex flex-row px-1 space-x-2">
-            {links.map((link, key) => (
-              <li key={key}>
-                <Link  href={link}>
-                  {link}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="flex-none space-x-2">
-	
-		<ParaModal></ParaModal>
-	
-		
-        </div>
-      </div>
-	  <CounterFeature></CounterFeature>
+	<section className="flex items-center justify-center h-screen bg-blue-600 text-white">
+	<div className="text-center">
+	  <h1 className="text-5xl font-extrabold mb-4">
+		Welcome to <span className="text-blue-200">EstateDAO</span>
+	  </h1>
+	  <p className="text-lg text-blue-200 mb-8">
+		Decentralized estate management made simple.
+	  </p>
 
-  </div>
+	  <div className="flex justify-center space-x-4">
+		<Link href={"/estates"}>
+		<button className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow-md hover:bg-blue-200 transition">
+		  Create Estate
+		</button>
+		</Link>
+		<Link href={"/estates"}>
+		<button className="px-6 py-3 bg-blue-800 text-white font-semibold rounded-lg shadow-md hover:bg-blue-900 transition">
+		  Join Estate
+		</button>
+		</Link>
+	  </div>
+	</div>
+  </section>
   );
 }
