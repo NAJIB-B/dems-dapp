@@ -1,6 +1,11 @@
 import { publicProcedure } from "@/server/api/trpc";
 import { z } from "zod";
 
+export const getAllEstate = publicProcedure
+ .query(async ({ ctx, input }) => {
+	return ctx.db.estate.findMany();
+  });
+
 export const readEstate = publicProcedure
   .input(
 	z.object({

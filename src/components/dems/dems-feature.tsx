@@ -2,7 +2,9 @@
 
 import { useWallet } from '@solana/wallet-adapter-react'
 import ParaModal from '../para/paraModal'
-import para from '@/client/para'
+
+import { api } from '@/trpc/react'
+import { useAnchorProvider } from "@/app/solanaProvider";
 
 
 import { useDemsProgram } from './dems-data-access'
@@ -39,12 +41,14 @@ export default function Estates() {
 
 
 
+
   const { programId } = useDemsProgram()
 
 
 
   return publicKey ? (
-    <div>
+
+		<div>
 
         <p className="mb-6">
           <ExplorerLink path={`account/${programId}`} label={ellipsify(programId.toString())} />
@@ -52,7 +56,10 @@ export default function Estates() {
         <EstateCreate />
 
       <EstateList />
-    </div>
+    </div> 
+
+
+ 
   ) : (
     <div className="max-w-4xl mx-auto">
       <div className="hero py-[64px]">

@@ -4,6 +4,9 @@ import { clusterApiUrl, Keypair, PublicKey } from '@solana/web3.js'
 import { SetStateAction, useMemo, useState } from 'react'
 
 import { useDemsProgram, useDemsProgramAccount} from './dems-data-access'
+import { useAnchorProvider } from '@/app/solanaProvider'
+import { api } from '@/trpc/react'
+import Spinner from '../spinner'
 
 export function ellipsify(str = '', len = 4) {
 	if (str.length > 30) {
@@ -67,6 +70,10 @@ export function EstateCreate() {
 }
 
 export function EstateList() {
+	const {data, isLoading, isError } = api.dems.getAllEstate.useQuery()
+	const provider = useAnchorProvider();
+	const user = provider.publicKey;
+	
   const { accounts, getProgramAccount, joinEstate } = useDemsProgram()
 
   if (getProgramAccount.isLoading) {
@@ -85,8 +92,8 @@ export function EstateList() {
         <span className="loading loading-spinner loading-lg"></span>
       ) : accounts.data?.length ? (
         <div className="grid md:grid-cols-3 gap-4">
-          {accounts.data?.map((account, key) => (
-			<EstateCard key={key} account={account.publicKey}></EstateCard>
+          {data?.map((account, key) => (
+			<EstateCard key={key} account={account.id}></EstateCard>
             // <CounterCard key={account.publicKey.toString()} account={account.publicKey} />
           ))}
         </div>
@@ -100,28 +107,33 @@ export function EstateList() {
   )
 }
 
-function EstateCard({account}: {account: PublicKey}) {
-	const {accountQuery} = useDemsProgramAccount({account})
+function EstateCard({account}: {account: string}) {
+	// const {accountQuery} = useDemsProgramAccount({account})
 	const {joinEstate} = useDemsProgram()
+	const {data, isLoading, isError} = api.dems.readEstate.useQuery({publicKey: account})
+	const estateKey = new PublicKey(account);
 
-	const data = useMemo(() => accountQuery.data, [accountQuery.data])
-	return (
+ //const data = useMemo(() => accountQuery.data, [accountQuery.data])
+	   return isLoading ? (
+    <Spinner></Spinner>
+   ) : (
 		<div className="max-w-xl mx-auto bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
 		  <h2 className="text-xl font-bold text-gray-800 mb-2">name: {data?.name}</h2>
 	
 		  <div className="text-gray-600">
-			<p className="mb-1"><strong>Vault Balance:</strong> {data?.vaultBalance.toNumber()}</p>
-			<p className="mb-1"><strong>Number of Residents:</strong> {data?.noOfResidents}</p>
+			<p className="mb-1"><strong>Vault Balance:</strong> {data?.vaultBalance}</p>
+			<p className="mb-1"><strong>Number of Residents:</strong> {data?.members.length}</p>
 			<p className="mb-3">
 			  <strong>Leader:</strong> 
-			  <span className="block text-sm text-gray-500 break-all">
-				{data?.leader.toBase58()}
+			  <span className=" text-sm text-gray-500 break-all">
+				{data?.leader}
 			  </span>  
 			</p>
+			
 		  </div>
 	
 		  <button 
-		  onClick={()=> joinEstate.mutateAsync(account)}
+		  onClick={()=> joinEstate.mutateAsync(estateKey)}
 		  className="w-full mt-4 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300">
 			join
 		  </button>

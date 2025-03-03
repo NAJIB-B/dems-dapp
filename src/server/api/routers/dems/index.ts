@@ -1,6 +1,6 @@
 import { createTRPCRouter } from "@/server/api/trpc";
 import { createEstate, createMember, createPoll } from "./create";
-import { findUserEstate, readEstate } from "./read";
+import { findUserEstate, getAllEstate, readEstate } from "./read";
 import {
 castAgreeVote,
 castDisagreeVote,
@@ -15,5 +15,6 @@ export const demsRouter = createTRPCRouter({
   agreeVote: castAgreeVote,
   disagreeVote: castDisagreeVote,
   depositSol: depositSol,
-  findUserEstate: findUserEstate
+  findUserEstate: findUserEstate,
+  getAllEstate: getAllEstate
 });

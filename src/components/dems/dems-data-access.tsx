@@ -214,6 +214,8 @@ export function useDemsProgramAccount({ account }: { account: PublicKey }) {
         program.programId
       )[0];
 
+	 
+
       const transactionPda = PublicKey.findProgramAddressSync(
         [
           Buffer.from("transaction"),
@@ -223,6 +225,9 @@ export function useDemsProgramAccount({ account }: { account: PublicKey }) {
         ],
         program.programId
       )[0];
+
+	  provider.connection.getBalance(provider.publicKey).then((balance) =>  console.log("my wallet balance", balance))
+
 
       return program.methods
         .makeDeposit(seed, amount)
@@ -243,7 +248,11 @@ export function useDemsProgramAccount({ account }: { account: PublicKey }) {
 
       return accountQuery.refetch();
     },
-    onError: () => toast.error("Failed to deposit SOL"),
+    onError: (err) => {
+		 toast.error("Failed to deposit SOL")
+
+		 console.log(err)
+	}
   });
 
   const createPoll = useMutation({
@@ -290,7 +299,10 @@ export function useDemsProgramAccount({ account }: { account: PublicKey }) {
 
       return accountQuery.refetch();
     },
-    onError: () => toast.error("Failed to create poll"),
+    onError: (err) => {
+		toast.error("Failed to create poll");
+		console.log(err)
+	},
   });
 
   const castAVote = useMutation({

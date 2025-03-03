@@ -26,7 +26,7 @@ model Estate {
 }
 
 model Member {
-  id       String @id @unique 
+  id       String @id @unique
   estateId String 
   estate   Estate @relation(fields: [estateId], references: [id], onDelete: Cascade)
   joinedAt DateTime @default(now())
