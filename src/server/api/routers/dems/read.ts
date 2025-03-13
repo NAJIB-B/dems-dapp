@@ -46,3 +46,17 @@ export const readEstate = publicProcedure
 	});
   });
 
+  export const findMember = publicProcedure
+  .input(
+	z.object({
+	  publicKey: z.string(),
+	})
+  )
+  .query(async ({ ctx, input }) => {
+	return ctx.db.member.findFirst({
+	  where: {
+		id: input.publicKey,
+	  }
+	});
+  });
+

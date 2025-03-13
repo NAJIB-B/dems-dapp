@@ -191,6 +191,7 @@ export function useDemsProgramAccount({ account }: { account: PublicKey }) {
   const castAgreeVote = api.dems.agreeVote.useMutation();
   const castDisagreeVote = api.dems.disagreeVote.useMutation();
   const despositSolDb = api.dems.depositSol.useMutation()
+  const updatePollState = api.dems.updatePollState.useMutation()
 
   const accountQuery = useQuery({
     queryKey: ["estate", "fetch", { cluster, account }],
@@ -356,11 +357,17 @@ export function useDemsProgramAccount({ account }: { account: PublicKey }) {
     onSuccess: async (signature, values) => {
       transactionToast(signature);
 
+	  const poll = await program.account.pollState.fetch(values.pollPda);
+
+	  console.log(poll)
+
 	  if (values.vote) {
 		await castAgreeVote.mutate({poll: values.pollPda.toBase58()})
 	  } else {
 		await castDisagreeVote.mutate({poll: values.pollPda.toBase58()})
 	  }
+
+	  await updatePollState.mutate({poll: values.pollPda.toBase58(), closed: !poll.active})
 
       return accountQuery.refetch();
     },

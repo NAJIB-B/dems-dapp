@@ -56,3 +56,21 @@ export const castAgreeVote = publicProcedure
 	});
   });
 
+  export const updatePollState = publicProcedure
+  .input(
+	z.object({
+	  poll: z.string(),
+	  closed: z.boolean()
+	})
+  )
+  .mutation(async ({ ctx, input }) => {
+	return ctx.db.poll.update({
+	  where: {
+		id: input.poll,
+	  },
+	  data: {
+		closed: input.closed
+	  },
+	});
+  });
+

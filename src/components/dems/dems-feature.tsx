@@ -1,6 +1,7 @@
 'use client'
 
 import { useWallet } from '@solana/wallet-adapter-react'
+import { useWallet as paraWallet } from '@getpara/react-sdk'
 import ParaModal from '../para/paraModal'
 
 import { api } from '@/trpc/react'
@@ -8,7 +9,7 @@ import { useAnchorProvider } from "@/app/solanaProvider";
 
 
 import { useDemsProgram } from './dems-data-access'
-import { EstateCreate, EstateList } from './dems-ui'
+import { EstateList } from './dems-ui'
 import { clusterApiUrl } from '@solana/web3.js';
 
 
@@ -38,6 +39,8 @@ export function ExplorerLink({ path, label, className }: { path: string; label: 
 
 export default function Estates() {
 	const {publicKey} = useWallet()
+	const para = paraWallet()
+
 
 
 
@@ -45,7 +48,7 @@ export default function Estates() {
   const { programId } = useDemsProgram()
 
 
-
+console.log("see para", para)
   return publicKey ? (
 
 		<div>
@@ -53,9 +56,9 @@ export default function Estates() {
         <p className="mb-6">
           <ExplorerLink path={`account/${programId}`} label={ellipsify(programId.toString())} />
         </p>
-        <EstateCreate />
 
-      <EstateList />
+
+      <EstateList user={publicKey} />
     </div> 
 
 

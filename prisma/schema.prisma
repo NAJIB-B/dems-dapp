@@ -42,4 +42,5 @@ model Poll {
   agreeVotes Int    @default(0)
   disagreeVotes Int @default(0)
   createdAt DateTime @default(now())
+  closed Boolean @default(false)
 }

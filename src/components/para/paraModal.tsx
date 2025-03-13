@@ -17,7 +17,9 @@ const Modal = dynamic(
 
 function ParaModal() {
   const [isOpen, setIsOpen] = useState(false);
-  const { wallet } = useWallet();
+  const { wallet, publicKey } = useWallet();
+
+  console.log("wallet ",wallet)
 
   return (
     <div>

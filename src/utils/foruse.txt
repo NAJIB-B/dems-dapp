@@ -1,0 +1,26 @@
+"use client";
+import React, { useEffect, useState } from "react";
+
+export default function useMount() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  return mounted;
+}
+
+"use client";
+import useMount from "@/hooks/useMount";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import React from "react";
+
+export default function ConnectWallet() {
+  const mounted = useMount();
+
+  if (!mounted) {
+    return <></>;
+  }
+
+  return <WalletMultiButton />;
+}

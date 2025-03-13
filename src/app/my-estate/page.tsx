@@ -4,18 +4,22 @@ import { useAnchorProvider } from "@/app/solanaProvider";
 
 import { useWallet } from "@solana/wallet-adapter-react";
 import { BN } from "bn.js";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 import React, { SetStateAction, useState } from "react";
 import { useDemsProgramAccount } from "@/components/dems/dems-data-access";
 import { PublicKey } from "@solana/web3.js";
 import { DepositSOLParams, CreatePollParams } from "@/types";
 import Spinner from "@/components/spinner";
+import { useQueryClient } from "@tanstack/react-query";
+
 
 const EstatePage = () => {
   const { wallet } = useWallet();
   const provider = useAnchorProvider();
+  const queryClient = useQueryClient(); 
 
-  const { data, isLoading, isError } = api.dems.findUserEstate.useQuery(
+  const { data, isLoading, isError, refetch } = api.dems.findUserEstate.useQuery(
     provider.publicKey && { publicKey: provider.publicKey.toBase58() },
     { enabled: !!provider.publicKey }
   );
@@ -58,7 +62,7 @@ const EstatePage = () => {
     setQuestion(e.target.value);
   };
 
-  const pollAmountBN = new BN(pollAmount);
+  const pollAmountBN = new BN(+pollAmount * LAMPORTS_PER_SOL);
 
   const generateSeed = () => {
     const randomArray = new Uint8Array(8);
@@ -66,9 +70,13 @@ const EstatePage = () => {
     return new BN(Buffer.from(randomArray));
   };
 
-  const depositSeed = generateSeed();
-  const depositAmount = new BN(amount);
+  const seed = generateSeed();
+  const depositAmount = new BN(+amount * LAMPORTS_PER_SOL);
 
+
+  if (isLoading) {
+	return <Spinner></Spinner>
+  }
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-8">
       {/* Estate Details */}
@@ -77,7 +85,7 @@ const EstatePage = () => {
       </h1>
       <div className="mb-6 text-gray-600">
         <p>
-          <strong>Vault Balance:</strong> {data?.estate.vaultBalance} SOL
+          <strong>Vault Balance:</strong> {data?.estate.vaultBalance! / LAMPORTS_PER_SOL} SOL
         </p>
         <p>
           <strong>Number of Residents:</strong> {data?.estate.members.length}
@@ -107,12 +115,20 @@ const EstatePage = () => {
       />
       {estateKey ? (
         <button
-          onClick={() =>
-            depositSol.mutate({
-              seed: depositSeed,
-              amount: depositAmount,
-              estatePda: estateKey,
-            })
+          onClick={() =>{
+			depositSol.mutate({
+				seed: seed,
+				amount: depositAmount,
+				estatePda: estateKey,
+			  },
+			  {
+				onSuccess: ()=> {
+					refetch()
+				}
+			  })
+			  setAmount("")
+		  }
+      
           }
           className="w-full mb-6 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
         >
@@ -142,12 +158,20 @@ const EstatePage = () => {
       />
       {estateKey ? (
         <button
-          onClick={() =>
+          onClick={() =>{
             createPoll.mutate({
               description: question,
               amount: pollAmountBN,
               estatePda: estateKey,
-            })
+            },
+			{
+			  onSuccess: ()=> {
+				  refetch()
+			  }
+			})
+			setPollAmount("");
+			setQuestion("");
+		}
           }
           className="w-full mb-6 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
         >
@@ -160,7 +184,7 @@ const EstatePage = () => {
       {/* Vault & Residents Info */}
       <div className="mb-6 p-4 bg-gray-100 rounded-lg flex justify-between">
         <p>
-          <strong>Vault Balance:</strong> {data?.estate.vaultBalance} SOL
+          <strong>Vault Balance:</strong> {data?.estate.vaultBalance! / LAMPORTS_PER_SOL} SOL
         </p>
         <p>
           <strong>Residents:</strong> {data?.estate.members.length}
@@ -175,17 +199,59 @@ const EstatePage = () => {
         {data?.estate?.polls?.length! > 0 ? (
           data?.estate.polls.map((poll) => (
             <div key={poll.id} className="p-4 border rounded-lg shadow">
-              <p className="text-gray-800 font-medium">{poll.question}</p>
+              <p className="text-gray-800 font-bold text-2xl">{poll.question}</p>
               <div className="flex justify-between items-center mt-2">
                 <span className="text-gray-600">
                   Votes: {poll.agreeVotes + poll.disagreeVotes}
                 </span>
-                <button
-                  //   onClick={() => handleVote(poll.id)}
-                  className="px-4 py-1 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition"
-                >
-                  Vote
-                </button>
+				<div className="flex flex-row gap-6">
+					{poll.closed ? <span className="text-gray-800 font-bold text-2xl"> Poll has been finalized</span> :
+					<>
+					 <button
+					 onClick={() =>
+					   castAVote.mutate({
+						   seed,
+						   vote: true,
+						   estatePda: estateKey!,
+						   pollPda: new PublicKey(poll.id),
+						   pollCreator: new PublicKey(poll.pollCreator)
+						 },
+						 {
+						   onSuccess: ()=> {
+							   refetch()
+						   }
+						 })
+					 }
+					 className="px-4 py-1 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition"
+				   >
+					 Agree
+				   </button>
+				   <button
+					 onClick={() =>
+					   castAVote.mutate({
+						   seed,
+						   vote: false,
+						   estatePda: estateKey!,
+						   pollPda: new PublicKey(poll.id),
+						   pollCreator: new PublicKey(poll.pollCreator)
+						 },
+						 {
+						   onSuccess: ()=> {
+							   refetch()
+						   }
+						 }
+					   )
+					 }
+					 className="px-4 py-1 bg-red-600 text-white rounded-lg shadow hover:bg-green-700 transition"
+				   >
+					 Disagree
+				   </button>
+					</>
+					
+					}
+               
+				</div>
+
               </div>
             </div>
           ))
