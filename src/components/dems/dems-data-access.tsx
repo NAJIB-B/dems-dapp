@@ -235,7 +235,7 @@ export function useDemsProgramAccount({ account }: { account: PublicKey }) {
         program.programId
       )[0];
 
-	  provider.connection.getBalance(provider.publicKey).then((balance) =>  console.log("my wallet balance", balance))
+	
 
 
       return program.methods
@@ -367,7 +367,7 @@ export function useDemsProgramAccount({ account }: { account: PublicKey }) {
 
 	  const poll = await program.account.pollState.fetch(values.pollPda);
 
-	  console.log(poll)
+
 
 	  if (values.vote) {
 		await castAgreeVote.mutate({poll: values.pollPda.toBase58()})

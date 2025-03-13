@@ -38,6 +38,8 @@ const EstatePage = () => {
 
   const { transactions } = useDemsProgram();
 
+  console.log("transaction",transactions.data)
+
   const [filteredTransactions, setFilteredTransactions] = useState<
     ProgramAccount<{
       estate: PublicKey;
@@ -51,6 +53,8 @@ const EstatePage = () => {
   >([]);
 
   useEffect(() => {
+	console.log("came here")
+	console.log("estate key", estateKey)
     if (estateKey) {
       const newArray = transactions.data
         ?.filter((tx) => tx.account.estate.toBase58() == estateKey.toBase58())
@@ -58,6 +62,7 @@ const EstatePage = () => {
           (a, b) =>
             a.account.timestamp.toNumber() - b.account.timestamp.toNumber()
         );
+		console.log("new ", newArray)
       setFilteredTransactions(newArray!);
     }
   }, [transactions.data]);
