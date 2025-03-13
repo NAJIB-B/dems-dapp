@@ -4,7 +4,7 @@ import { getDemsProgram, getDemsProgramId } from "../../utils/programDetails";
 import { AnchorWallet, useConnection } from "@solana/wallet-adapter-react";
 import { Cluster, Keypair, PublicKey } from "@solana/web3.js";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { use, useMemo } from "react";
 import toast from "react-hot-toast";
 import { SystemProgram } from "@solana/web3.js";
 
@@ -14,6 +14,7 @@ import { useAnchorProvider } from "@/app/solanaProvider";
 import { BN } from "@coral-xyz/anchor";
 
 import { DepositSOLParams, CreatePollParams, CastVoteParams } from "@/types";
+
 
 
 export function ExplorerLink({
@@ -54,6 +55,7 @@ export function useTransactionToast() {
   };
 }
 
+
 export function useDemsProgram() {
   const connection = new Connection(clusterApiUrl("devnet"));
   const cluster = clusterApiUrl("devnet");
@@ -68,13 +70,18 @@ export function useDemsProgram() {
     () => getDemsProgram(provider, programId),
     [provider, programId]
   );
-  const createEstate = api.dems.createEstate.useMutation();
+  const createEstateWithMember = api.dems.createEstateWithMember.useMutation();
   const createMember = api.dems.createMember.useMutation();
 
   const accounts = useQuery({
     queryKey: ["estates", "all", { cluster }],
     queryFn: () => program.account.estateState.all(),
   });
+
+  const transactions = useQuery({
+	queryKey: ["transactions", "all", { cluster }],
+    queryFn: () => program.account.transactionState.all(),
+  })
 
   const getProgramAccount = useQuery({
     queryKey: ["get-program-account", { cluster }],
@@ -121,15 +128,15 @@ export function useDemsProgram() {
       )[0];
 
       transactionToast(signature);
-      await createEstate.mutate({
+      await createEstateWithMember.mutate({
         name: name,
-        publicKey: estatePda.toBase58(),
-        leader: provider.publicKey.toBase58(),
+        estatePublicKey: estatePda.toBase58(),
+        leaderPublicKey: provider.publicKey.toBase58(),
       });
-      await createMember.mutate({
-        estateId: estatePda.toBase58(),
-        publicKey: provider.publicKey.toBase58(),
-      });
+    //   await createMember.mutate({
+    //     estateId: estatePda.toBase58(),
+    //     publicKey: provider.publicKey.toBase58(),
+    //   });
 
       return accounts.refetch();
     },
@@ -173,6 +180,7 @@ export function useDemsProgram() {
     program,
     programId,
     accounts,
+	transactions,
     getProgramAccount,
     initialize,
     joinEstate,

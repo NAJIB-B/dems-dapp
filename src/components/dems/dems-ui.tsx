@@ -69,8 +69,10 @@ export function EstateList({ user }: { user: PublicKey }) {
     setName(e.target.value);
   };
 
-  const { data, isLoading, isError, refetch } =
+  const { data, isLoading, isError, isFetching, refetch } =
     api.dems.getAllEstate.useQuery();
+
+
 
   const provider = useAnchorProvider();
 
@@ -110,10 +112,11 @@ export function EstateList({ user }: { user: PublicKey }) {
         />
 
         <button
-          onClick={() => {
+          onClick={async () => {
             if (!member) {
-				initialize.mutateAsync(name).then(()=> refetch());
+				await initialize.mutateAsync(name);
 				setName("")
+				refetch()
             } else {
 				
 				toast.error("One user can't create multiple estates")
@@ -128,7 +131,7 @@ export function EstateList({ user }: { user: PublicKey }) {
       </div>
 
       <div className={"space-y-6"}>
-        {isLoading ? (
+        {isLoading || isFetching ? (
           <Spinner></Spinner>
         ) : accounts.data?.length ? (
           <div className="grid md:grid-cols-3 gap-4">

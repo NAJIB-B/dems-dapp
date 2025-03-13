@@ -7,6 +7,7 @@ import "@getpara/react-sdk/styles.css";
 import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { AnchorProvider } from "@coral-xyz/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useWallet as paraWallet } from '@getpara/react-sdk'
 import { AnchorWallet } from "@solana/wallet-adapter-react";
 
 // Dynamically import the ParaModal to avoid SSR issues
@@ -17,13 +18,14 @@ const Modal = dynamic(
 
 function ParaModal() {
   const [isOpen, setIsOpen] = useState(false);
-  const { wallet, publicKey } = useWallet();
+//   const { wallet, publicKey } = useWallet();
+  const {data, isSuccess} = paraWallet();
 
-  console.log("wallet ",wallet)
+
 
   return (
     <div>
-      {wallet ? (
+      {isSuccess && data? (
         <button
           onClick={() => setIsOpen(true)}
           className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300"

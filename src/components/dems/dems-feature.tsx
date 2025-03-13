@@ -39,7 +39,7 @@ export function ExplorerLink({ path, label, className }: { path: string; label: 
 
 export default function Estates() {
 	const {publicKey} = useWallet()
-	const para = paraWallet()
+	const {isSuccess} = paraWallet()
 
 
 
@@ -48,8 +48,8 @@ export default function Estates() {
   const { programId } = useDemsProgram()
 
 
-console.log("see para", para)
-  return publicKey ? (
+
+  return isSuccess && publicKey ? (
 
 		<div>
 
@@ -67,7 +67,7 @@ console.log("see para", para)
     <div className="max-w-4xl mx-auto">
       <div className="hero py-[64px]">
         <div className="hero-content text-center">
-          <ParaModal />
+          Login to access estates
         </div>
       </div>
     </div>
